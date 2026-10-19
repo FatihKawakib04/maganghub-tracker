@@ -2,4 +2,6 @@ node_modules
 dist
 _recon
 public/data
+.dev.vars
+.wrangler
 .DS_Store

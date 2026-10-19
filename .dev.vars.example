@@ -1,0 +1,6 @@
+# Salin ke .dev.vars untuk `wrangler pages dev` (JANGAN commit .dev.vars).
+# Kosongkan untuk memakai ranker deterministik lokal.
+# Isi dengan endpoint chat/completions milikmu untuk AI asli.
+
+MATCH_UPSTREAM=""
+MATCH_UPSTREAM_KEY=""

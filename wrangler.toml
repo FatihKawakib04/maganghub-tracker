@@ -1,0 +1,8 @@
+name = "maganghub-tracker"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "dist"
+
+# /api/match dilayani functions/api/match.js (ranker deterministik).
+# Opsional: teruskan ke LLM upstream via secret/vars:
+#   npx wrangler pages secret put MATCH_UPSTREAM
+#   npx wrangler pages secret put MATCH_UPSTREAM_KEY
