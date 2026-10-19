@@ -1,6 +1,11 @@
 # Salin ke .dev.vars untuk `wrangler pages dev` (JANGAN commit .dev.vars).
-# Kosongkan untuk memakai ranker deterministik lokal.
-# Isi dengan endpoint chat/completions milikmu untuk AI asli.
-
-MATCH_UPSTREAM=""
-MATCH_UPSTREAM_KEY=""
+#
+# Default — semua baris di bawah dibiarkan TERKOMENTAR — memakai endpoint AI asli situs:
+#   https://magang-nasional.faaris.id/api/match
+#
+# Set ke string kosong untuk MEMATIKAN upstream AI asli (pakai ranker lokal saja):
+# MATCH_UPSTREAM=""
+#
+# Set ke URL lain untuk LLM milikmu sendiri (harus menerima kontrak yang sama):
+# MATCH_UPSTREAM="https://api.example.com/v1/match"
+# MATCH_UPSTREAM_KEY="sk-..."

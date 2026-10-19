@@ -18,9 +18,12 @@ Item list ringkas: `i` id, `t` title, `o` organizer, `c` city idx, `sp` studyPro
 Level: ≥70 Sangat Tinggi, ≥50 Tinggi, ≥30 Sedang, ≥15 Rendah, else Sangat Rendah.
 
 ## AI match
-- Endpoint `POST /api/match` → `functions/api/match.js` (Cloudflare Pages) + middleware dev di `vite.config.js`.
-- Default: ranker deterministik `shared/match.js`. Client fallback ke ranker yang sama bila endpoint tidak ada.
-- AI upstream opsional: set env `MATCH_UPSTREAM` (+ `MATCH_UPSTREAM_KEY`).
+- Client `POST /api/match` (same-origin) → `functions/api/match.js` (Cloudflare Pages) + middleware dev di `vite.config.js`.
+- **Endpoint AI asli situs dipakai via proxy server-side**: `https://magang-nasional.faaris.id/api/match`, default `MATCH_UPSTREAM`.
+  - Kontrak: mode `expand` → `{jurusan,minat,degraded}`; mode `stream:true` → NDJSON `{type:'result',result:{id,score,reason}}` … `{type:'done',degraded}`.
+  - POST-nya tak mengirim header CORS, jadi **harus** dipanggil dari server (bukan browser). 429 → `retryAfter`, 403 → fallback.
+- Bila upstream `degraded`/mati (kondisi saat ini) → otomatis fallback ke ranker deterministik `shared/match.js` (`degraded:true`).
+- Matikan upstream: `MATCH_UPSTREAM=""`. Ganti ke LLM sendiri: isi URL + `MATCH_UPSTREAM_KEY`.
 
 ## Data offline (opsional)
 - `node scripts/mirror-data.mjs` → unduh semua shard ke `public/data` (~90MB, di-`gitignore`).

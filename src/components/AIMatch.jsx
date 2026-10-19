@@ -20,6 +20,7 @@ export default function AIMatch({ onOpen }) {
   const [profile, setProfile] = useState(loadPrefs);
   const [status, setStatus] = useState("idle"); // idle | loading | done | empty
   const [results, setResults] = useState([]);
+  const [degraded, setDegraded] = useState(true);
 
   useEffect(() => {
     try {
@@ -34,23 +35,11 @@ export default function AIMatch({ onOpen }) {
   const run = async () => {
     if (!positions.length) return;
     setStatus("loading");
-    const candidates = positions.slice(0, MAX_CANDIDATES).map((p) => ({
-      id: p.id,
-      title: p.title,
-      company: p.company,
-      location: p.location,
-      jurusan: p.jurusan,
-      tingkat_pendidikan: p.tingkat_pendidikan,
-      skills: (p.skills || []).slice(0, 4),
-      organizer: p.organizer ? { type: p.organizer.type } : null,
-      total_applications: p.total_applications,
-      approved_quantity: p.approved_quantity,
-      quantity_needed: p.quantity_needed,
-    }));
-    const out = await matchPositions(profile, candidates);
+    const out = await matchPositions(profile, positions.slice(0, MAX_CANDIDATES));
     const byId = Object.fromEntries(positions.map((p) => [p.id, p]));
     const recs = (out.recommendations || []).map((r) => ({ ...r, position: byId[r.id] })).filter((r) => r.position);
     setResults(recs);
+    setDegraded(!!out.degraded);
     setStatus(recs.length ? "done" : "empty");
   };
 
@@ -87,6 +76,9 @@ export default function AIMatch({ onOpen }) {
           {status === "loading" ? <p className="muted">AI menilai {MAX_CANDIDATES} kandidat teratas...</p> : null}
           {status === "empty" ? <p className="muted">Belum ada lowongan yang cocok.</p> : null}
 
+          {status === "done" && degraded ? (
+            <p className="muted">AI asli (endpoint situs) sedang tidak tersedia — memakai skor heuristik lokal.</p>
+          ) : null}
           {status === "done" ? (
             <ol className="ai-results">
               {results.map((r) => (

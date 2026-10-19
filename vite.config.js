@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { rank } from "./shared/match.js";
+import { handleMatch, DEFAULT_UPSTREAM } from "./shared/ai-match.js";
 
-// Middleware dev untuk /api/match (mencerminkan fungsi Cloudflare Pages di functions/api/match.js).
+// Dev middleware /api/match. Mencerminkan fungsi Cloudflare Pages di functions/api/match.js.
+// Set MATCH_UPSTREAM="" untuk mematikan upstream AI asli (pakai ranker lokal).
 function matchApiDev() {
+  const upstream = process.env.MATCH_UPSTREAM === "" ? null : process.env.MATCH_UPSTREAM || DEFAULT_UPSTREAM;
   return {
     name: "match-api-dev",
     configureServer(server) {
@@ -11,11 +13,11 @@ function matchApiDev() {
         if (req.method !== "POST") return next();
         let raw = "";
         req.on("data", (c) => (raw += c));
-        req.on("end", () => {
+        req.on("end", async () => {
           res.setHeader("Content-Type", "application/json");
           try {
             const body = JSON.parse(raw || "{}");
-            res.end(JSON.stringify(rank(body.profile || {}, body.candidates || [])));
+            res.end(JSON.stringify(await handleMatch(body, upstream)));
           } catch (e) {
             res.statusCode = 400;
             res.end(JSON.stringify({ error: String(e) }));
