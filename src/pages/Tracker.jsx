@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore, STATUSES } from "../store.js";
 import { PositionDetail } from "../components/Position.jsx";
 
@@ -18,8 +18,11 @@ export default function Tracker() {
     fetchData();
   }, [fetchData]);
 
-  const byId = Object.fromEntries(positions.map((p) => [p.id, p]));
-  const cards = bookmarks.map((id) => byId[id] || snapshots[id] || { id, title: id, company: "-", location: "-" });
+  const byId = useMemo(() => Object.fromEntries(positions.map((p) => [p.id, p])), [positions]);
+  const cards = useMemo(
+    () => bookmarks.map((id) => byId[id] || snapshots[id] || { id, title: id, company: "-", location: "-" }),
+    [bookmarks, byId, snapshots]
+  );
 
   const share = async () => {
     const url = new URL(window.location.origin);

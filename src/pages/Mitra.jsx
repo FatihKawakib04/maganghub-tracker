@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../store.js";
+import { safeUrl } from "../data.js";
 
 const PAGE = 30;
 
@@ -79,8 +80,8 @@ export default function Mitra() {
             return (
               <article key={o.id} className="card">
                 <div className="card-head">
-                  {o.logo_url ? (
-                    <img className="logo" src={o.logo_url} alt="" loading="lazy" />
+                  {safeUrl(o.logo_url) ? (
+                    <img className="logo" src={safeUrl(o.logo_url)} alt="" loading="lazy" referrerPolicy="no-referrer" />
                   ) : (
                     <span className="logo">{o.name.substring(0, 3).toUpperCase()}</span>
                   )}

@@ -1,6 +1,6 @@
 // Jalankan: node test/ai.test.mjs  (offline; global fetch di-mock)
 import assert from "node:assert/strict";
-import { fetchUpstream, handleMatch, DEFAULT_UPSTREAM } from "../shared/ai-match.js";
+import { fetchUpstream, handleMatch, sanitizeInput, MAX_CANDIDATES, DEFAULT_UPSTREAM } from "../shared/ai-match.js";
 
 const realFetch = globalThis.fetch;
 const mockFetch = (impl) => {
@@ -58,7 +58,25 @@ try {
   assert.equal(off.recommendations[0].id, "q");
 
   assert.match(DEFAULT_UPSTREAM, /magang-nasional\.faaris\.id\/api\/match$/);
-  console.log("OK · parser upstream NDJSON + fallback + expand lolos");
+
+  // 8) sanitizeInput: batasi panjang, jumlah, tipe, dan buang entri tanpa id
+  const s = sanitizeInput({
+    mode: "weird",
+    profile: { jurusan: "x".repeat(999), tipeInstansi: "hack" },
+    candidates: [...Array(MAX_CANDIDATES + 50)].map((_, i) => ({ id: "id" + i, positionName: "n".repeat(999) })),
+  });
+  assert.equal(s.mode, "score");
+  assert.equal(s.profile.jurusan.length, 160);
+  assert.equal(s.profile.tipeInstansi, "all");
+  assert.equal(s.candidates.length, MAX_CANDIDATES);
+  assert.equal(s.candidates[0].positionName.length, 200);
+
+  const bad = sanitizeInput({ profile: null, candidates: [null, {}, { id: "" }, { id: "ok" }] });
+  assert.equal(bad.candidates.length, 1);
+  assert.equal(bad.candidates[0].id, "ok");
+  assert.equal(sanitizeInput(null).mode, "score");
+
+  console.log("OK · parser upstream NDJSON + fallback + expand + sanitize lolos");
 } finally {
   globalThis.fetch = realFetch;
 }

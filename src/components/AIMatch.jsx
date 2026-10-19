@@ -33,14 +33,19 @@ export default function AIMatch({ onOpen }) {
   const set = (k, v) => setProfile((p) => ({ ...p, [k]: v }));
 
   const run = async () => {
-    if (!positions.length) return;
+    if (!positions.length || status === "loading") return;
     setStatus("loading");
-    const out = await matchPositions(profile, positions.slice(0, MAX_CANDIDATES));
-    const byId = Object.fromEntries(positions.map((p) => [p.id, p]));
-    const recs = (out.recommendations || []).map((r) => ({ ...r, position: byId[r.id] })).filter((r) => r.position);
-    setResults(recs);
-    setDegraded(!!out.degraded);
-    setStatus(recs.length ? "done" : "empty");
+    try {
+      const out = await matchPositions(profile, positions.slice(0, MAX_CANDIDATES));
+      const byId = Object.fromEntries(positions.map((p) => [p.id, p]));
+      const recs = (out.recommendations || []).map((r) => ({ ...r, position: byId[r.id] })).filter((r) => r.position);
+      setResults(recs);
+      setDegraded(!!out.degraded);
+      setStatus(recs.length ? "done" : "empty");
+    } catch (e) {
+      console.error("[AIMatch]", e);
+      setStatus("error");
+    }
   };
 
   return (
@@ -75,6 +80,7 @@ export default function AIMatch({ onOpen }) {
 
           {status === "loading" ? <p className="muted">AI menilai {MAX_CANDIDATES} kandidat teratas...</p> : null}
           {status === "empty" ? <p className="muted">Belum ada lowongan yang cocok.</p> : null}
+          {status === "error" ? <p className="muted">Gagal menilai lowongan. Coba lagi.</p> : null}
 
           {status === "done" && degraded ? (
             <p className="muted">AI asli (endpoint situs) sedang tidak tersedia — memakai skor heuristik lokal.</p>

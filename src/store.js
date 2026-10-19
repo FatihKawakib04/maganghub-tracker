@@ -2,6 +2,11 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { loadManifest, loadShard, normalize, detailShardFor } from "./data.js";
 
+const ts = (d) => {
+  const t = new Date(d).getTime();
+  return Number.isNaN(t) ? 0 : t;
+};
+
 export const STATUSES = [
   { key: "planned", label: "Rencana Melamar", color: "gray" },
   { key: "applied", label: "Sudah Melamar", color: "blue" },
@@ -38,7 +43,7 @@ export const useStore = create(
           ]);
           const positions = first
             .map((r) => normalize(r, dict, skills))
-            .sort((a, b) => new Date(b.date) - new Date(a.date));
+            .sort((a, b) => ts(b.date) - ts(a.date));
           set({
             manifest,
             dict,
@@ -55,7 +60,7 @@ export const useStore = create(
           );
           const seen = new Set(positions.map((p) => p.id));
           const merged = [...positions, ...more.filter((p) => !seen.has(p.id))].sort(
-            (a, b) => new Date(b.date) - new Date(a.date)
+            (a, b) => ts(b.date) - ts(a.date)
           );
           set({ positionsData: merged, hydrating: false });
         } catch (e) {
@@ -121,8 +126,10 @@ export const useStore = create(
         })),
       importShare: (ids) =>
         set((s) => {
-          const next = [...new Set([...s.bookmarks, ...ids])];
-          return { bookmarks: next };
+          const clean = (Array.isArray(ids) ? ids : [])
+            .filter((x) => typeof x === "string" && x.length > 0 && x.length <= 80)
+            .slice(0, 500);
+          return { bookmarks: [...new Set([...s.bookmarks, ...clean])].slice(0, 1000) };
         }),
     }),
     {

@@ -163,3 +163,6 @@ export function scoreOf(p, historyById) {
 export const scoreText = (p, h) => `${scoreOf(p, h)}/100`;
 export const levelOf = (s) =>
   s >= 70 ? "Sangat Tinggi" : s >= 50 ? "Tinggi" : s >= 30 ? "Sedang" : s >= 15 ? "Rendah" : "Sangat Rendah";
+
+// Hanya izinkan URL http(s); tolak javascript:/data: dsb.
+export const safeUrl = (u) => (typeof u === "string" && /^https?:\/\//i.test(u.trim()) ? u.trim() : null);

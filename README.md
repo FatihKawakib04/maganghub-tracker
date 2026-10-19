@@ -38,6 +38,17 @@ node test/smoke.mjs    # normalisasi + skor eksak + ranker + akses data live
 node scripts/mirror-data.mjs   # snapshot offline opsional
 ```
 
+## Keamanan & ketahanan
+- **Tanpa secret di client.** Endpoint AI asli dipanggil server-side (proxy); bundle bersih dari kunci.
+- **Proxy `/api/match` dibatasi**: body maks 2 MB (413), kandidat maks 2000, field dipotong (`sanitizeInput`). `ALLOWED_ORIGIN` (Pages env) bisa mengunci domain; default `*`.
+- **URL eksternal divalidasi** (`safeUrl`): hanya `http(s)://` untuk logo mitra; `referrerPolicy="no-referrer"`. Link keluar pakai `rel="noreferrer"`.
+- **`share` param dibatasi** (500 id, panjang ≤80) saat impor tracker.
+- **Dev server bind `localhost`** (bukan LAN). `HOST=1 npm run dev` untuk membuka ke LAN.
+- **ErrorBoundary** global → tak layar putih saat error render.
+- **A11y**: kartu & modal `role`/`tabIndex`/keyboard, fokus otomatis, scroll-lock.
+- **`npm audit` = 0** (react-router 7, vite 7; bukan lagi 6/5).
+- CSP (saran, set di host, bukan meta): `default-src 'self'; img-src 'self' https://maganghub.kemnaker.go.id data:; connect-src 'self' https://magang-nasional.faaris.id; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'`.
+
 ## Sengaja tidak disertakan
 - AdSense, Cloudflare Analytics (butuh ID/token milik pemilik situs).
 - `contextmenu` disable (merusak UX/aksesibilitas).

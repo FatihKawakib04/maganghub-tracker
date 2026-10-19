@@ -29,7 +29,19 @@ export function PositionCard({ p, onOpen }) {
 
   return (
     <article className="card">
-      <div className="card-head" onClick={() => onOpen(p)}>
+      <div
+        className="card-head"
+        role="button"
+        tabIndex={0}
+        aria-label={`Lihat detail ${p.title}`}
+        onClick={() => onOpen(p)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOpen(p);
+          }
+        }}
+      >
         <span className="logo">{p.logo}</span>
         <div className="card-title">
           <h3>{p.title}</h3>
@@ -84,6 +96,11 @@ export function PositionDetail({ p, onClose }) {
 
   useEffect(() => {
     closeRef.current?.focus();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, []);
 
   useEffect(() => {

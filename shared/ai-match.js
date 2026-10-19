@@ -4,7 +4,47 @@ import { rank } from "./match.js";
 // Endpoint asli situs. POST-nya TIDAK mengirim header CORS, jadi hanya bisa dipanggil server-side.
 export const DEFAULT_UPSTREAM = "https://magang-nasional.faaris.id/api/match";
 
-// Panggil upstream. Return objek hasil, atau null bila tak ada hasil (degraded/gagal).
+export const MAX_CANDIDATES = 2000;
+const MAX_PROFILE = 160;
+const MAX_TASK = 600;
+
+const clampStr = (s, n) => (typeof s === "string" ? s.slice(0, n) : "");
+const clampNum = (v) => (Number.isFinite(v) ? v : undefined);
+
+// Bersihkan & batasi input agar proxy tak disalahgunakan (payload raksasa / field aneh).
+export function sanitizeInput(input) {
+  const src = input && typeof input === "object" ? input : {};
+  const p = src.profile && typeof src.profile === "object" ? src.profile : {};
+  const profile = {
+    jurusan: clampStr(p.jurusan, MAX_PROFILE),
+    jenjang: clampStr(p.jenjang, 40),
+    kota: clampStr(p.kota, MAX_PROFILE),
+    minat: clampStr(p.minat, MAX_PROFILE),
+    tipeInstansi: ["all", "government", "company"].includes(p.tipeInstansi) ? p.tipeInstansi : "all",
+  };
+  const candidates = (Array.isArray(src.candidates) ? src.candidates : [])
+    .slice(0, MAX_CANDIDATES)
+    .map((c) => {
+      const o = c && typeof c === "object" ? c : {};
+      return {
+        id: clampStr(o.id, 80),
+        positionName: clampStr(o.positionName || o.title, 200),
+        studyPrograms: (Array.isArray(o.studyPrograms) ? o.studyPrograms : []).slice(0, 10).map((s) => clampStr(s, 80)),
+        educationLevels: (Array.isArray(o.educationLevels) ? o.educationLevels : []).slice(0, 10).map((s) => clampStr(s, 40)),
+        city: clampStr(o.city || o.location, 80),
+        organizerType: clampStr(o.organizerType, 40) || null,
+        taskDescription: clampStr(o.taskDescription, MAX_TASK),
+        total_applications: clampNum(o.total_applications),
+        approved_quantity: clampNum(o.approved_quantity),
+        quantity_needed: clampNum(o.quantity_needed),
+      };
+    })
+    .filter((c) => c.id);
+
+  return { profile, candidates, mode: src.mode === "expand" ? "expand" : "score" };
+}
+
+// Panggil upstream. Return objek hasil, Error (429), atau null (degraded/gagal).
 export async function fetchUpstream(upstream, body, timeoutMs = 60000) {
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), timeoutMs);
@@ -33,7 +73,7 @@ export async function fetchUpstream(upstream, body, timeoutMs = 60000) {
         try {
           const j = JSON.parse(raw);
           if (j.type === "result" && j.result) {
-            recommendations.push({ id: String(j.result.id), score: j.result.score, reason: j.result.reason || "" });
+            recommendations.push({ id: String(j.result.id), score: j.result.score, reason: clampStr(j.result.reason, 400) });
           } else if (j.type === "done") {
             degraded = !!j.degraded;
           }
@@ -52,11 +92,11 @@ export async function fetchUpstream(upstream, body, timeoutMs = 60000) {
 }
 
 export async function handleMatch(input, upstream = DEFAULT_UPSTREAM) {
-  const { profile = {}, candidates = [], mode } = input || {};
+  const { profile, candidates, mode } = sanitizeInput(input);
 
   if (mode === "expand") {
     const j = upstream
-      ? await fetchUpstream(upstream, { mode: "expand", profile: { jurusan: profile.jurusan || "", minat: profile.minat || "" } }, 20000)
+      ? await fetchUpstream(upstream, { mode: "expand", profile: { jurusan: profile.jurusan, minat: profile.minat } }, 20000)
       : null;
     if (j && !(j instanceof Error) && ((j.jurusan || []).length || (j.minat || []).length)) {
       return { jurusan: j.jurusan || [], minat: j.minat || [], degraded: !!j.degraded };

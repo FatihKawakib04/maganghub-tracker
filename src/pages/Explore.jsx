@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useStore } from "../store.js";
 import { scoreOf, levelOf } from "../data.js";
@@ -17,6 +17,10 @@ const ratioOf = (p) => {
   const q = p.approved_quantity ?? p.quantity_needed ?? 1;
   const a = p.total_applications ?? 0;
   return a <= 0 ? Infinity : q / a;
+};
+const ts = (d) => {
+  const t = new Date(d).getTime();
+  return Number.isNaN(t) ? 0 : t;
 };
 
 export default function Explore() {
@@ -57,8 +61,9 @@ export default function Explore() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const deferredQuery = useDeferredValue(q);
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    const needle = deferredQuery.trim().toLowerCase();
     let out = positions.filter((p) => {
       if (needle) {
         const hay = `${p.title} ${p.company} ${p.location} ${p.jurusan} ${(p.skills || []).join(" ")}`.toLowerCase();
@@ -77,14 +82,14 @@ export default function Explore() {
       return true;
     });
     out = out.slice().sort((a, b) => {
-      if (sort === "oldest") return new Date(a.date) - new Date(b.date);
+      if (sort === "oldest") return ts(a.date) - ts(b.date);
       if (sort === "ratio_asc") return ratioOf(b) - ratioOf(a) || scoreOf(b) - scoreOf(a);
       if (sort === "ratio_desc") return ratioOf(a) - ratioOf(b);
       if (sort === "uang_saku_desc") return (b.uang_saku ?? 0) - (a.uang_saku ?? 0);
-      return new Date(b.date) - new Date(a.date);
+      return ts(b.date) - ts(a.date);
     });
     return out;
-  }, [positions, q, jurusan, kota, jenjang, tipe, chance, onlyMulti, showClosed, greenZone, onlyTarget, mitraId, sort, targetOrganizers]);
+  }, [positions, deferredQuery, jurusan, kota, jenjang, tipe, chance, onlyMulti, showClosed, greenZone, onlyTarget, mitraId, sort, targetOrganizers]);
 
   useEffect(() => setVisible(PAGE), [q, jurusan, kota, jenjang, tipe, chance, onlyMulti, greenZone, onlyTarget, sort]);
 

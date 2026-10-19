@@ -2,22 +2,42 @@ import { useEffect } from "react";
 import { NavLink, Route, Routes, Navigate } from "react-router-dom";
 import { useStore } from "./store.js";
 import { YEAR, BATCH_LABEL } from "./data.js";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import Explore from "./pages/Explore.jsx";
 import Mitra from "./pages/Mitra.jsx";
 import Tracker from "./pages/Tracker.jsx";
 
 const THEME_KEY = "vite-ui-theme";
+function systemTheme() {
+  try {
+    return typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
 function applyTheme(t) {
   const el = document.documentElement;
   el.classList.remove("light", "dark");
-  el.classList.add(t === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : t);
+  el.classList.add(t === "system" ? systemTheme() : t === "dark" ? "dark" : "light");
+}
+function readTheme() {
+  try {
+    const t = localStorage.getItem(THEME_KEY);
+    return t === "light" || t === "dark" ? t : "system";
+  } catch {
+    return "system";
+  }
 }
 function useTheme() {
   const set = (t) => {
-    localStorage.setItem(THEME_KEY, t);
+    try {
+      localStorage.setItem(THEME_KEY, t);
+    } catch {
+      /* storage penuh / privat */
+    }
     applyTheme(t);
   };
-  useEffect(() => applyTheme(localStorage.getItem(THEME_KEY) || "system"), []);
+  useEffect(() => applyTheme(readTheme()), []);
   return set;
 }
 
@@ -67,13 +87,15 @@ export default function App() {
       ) : null}
 
       <main className="page">
-        <Routes>
-          <Route path="/" element={<Explore />} />
-          <Route path="/mitra" element={<Mitra />} />
-          <Route path="/penyelenggara" element={<Navigate to="/mitra" replace />} />
-          <Route path="/tracker" element={<Tracker />} />
-          <Route path="*" element={<div className="empty">Halaman tidak ditemukan.</div>} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Explore />} />
+            <Route path="/mitra" element={<Mitra />} />
+            <Route path="/penyelenggara" element={<Navigate to="/mitra" replace />} />
+            <Route path="/tracker" element={<Tracker />} />
+            <Route path="*" element={<div className="empty">Halaman tidak ditemukan.</div>} />
+          </Routes>
+        </ErrorBoundary>
       </main>
 
       <footer className="footer">

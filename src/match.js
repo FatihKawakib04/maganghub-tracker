@@ -23,18 +23,23 @@ export function toCandidate(p) {
 
 export async function matchPositions(profile, positions, limit = 20) {
   const candidates = positions.map(toCandidate);
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 90000);
   try {
     const res = await fetch("/api/match", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mode: "score", profile, candidates }),
+      signal: ac.signal,
     });
     if (res.ok) {
       const json = await res.json();
       if (Array.isArray(json?.recommendations) && json.recommendations.length) return json;
     }
   } catch {
-    /* offline / tanpa endpoint -> ranker lokal */
+    /* offline / timeout / tanpa endpoint -> ranker lokal */
+  } finally {
+    clearTimeout(timer);
   }
   return rank(profile, candidates, limit);
 }
