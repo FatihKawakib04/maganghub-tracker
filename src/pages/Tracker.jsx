@@ -12,6 +12,7 @@ export default function Tracker() {
   const toggleBookmark = useStore((s) => s.toggleBookmark);
   const [open, setOpen] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [dragOver, setDragOver] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -52,12 +53,28 @@ export default function Tracker() {
           {STATUSES.map((col) => {
             const items = cards.filter((c) => (statuses[c.id] || "planned") === col.key);
             return (
-              <section key={col.key} className="col">
+              <section
+                key={col.key}
+                className={"col" + (dragOver === col.key ? " drop-target" : "")}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(col.key); }}
+                onDragLeave={() => setDragOver((k) => (k === col.key ? null : k))}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const id = e.dataTransfer.getData("text/plain");
+                  if (id) updateStatus(id, col.key);
+                  setDragOver(null);
+                }}
+              >
                 <header className={`col-head c-${col.color}`}>
                   {col.label} <span className="pill">{items.length}</span>
                 </header>
                 {items.map((c) => (
-                  <article key={c.id} className="mini-card">
+                  <article
+                    key={c.id}
+                    className="mini-card"
+                    draggable
+                    onDragStart={(e) => e.dataTransfer.setData("text/plain", c.id)}
+                  >
                     <h4 onClick={() => byId[c.id] && setOpen(byId[c.id])}>{c.title}</h4>
                     <p className="muted">{c.company} · {c.location}</p>
                     <select value={statuses[c.id] || "planned"} onChange={(e) => updateStatus(c.id, e.target.value)}>

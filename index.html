@@ -4,15 +4,54 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Magang Nasional Tracker 2026 — Cari & Pantau Lowongan Magang Kemnaker</title>
+    <title>Magang Nasional Tracker 2026 — Cari &amp; Pantau Lowongan Magang Kemnaker</title>
     <meta
       name="description"
       content="Tracker tidak resmi untuk memantau lowongan Magang Nasional (Kemnaker RI). Cari, filter, dan simpan posisi magang yang sesuai jurusanmu."
     />
+    <meta name="keywords" content="magang nasional, magang kemnaker, lowongan magang 2026, maganghub, tracker magang, siapkerja" />
+    <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href="/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Magang Nasional Tracker 2026" />
+    <meta property="og:description" content="Cari, filter, dan simpan lowongan Magang Nasional (Kemnaker RI) sesuai jurusanmu." />
+    <meta property="og:locale" content="id_ID" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Magang Nasional Tracker",
+        "inLanguage": "id-ID",
+        "description": "Tracker tidak resmi lowongan Magang Nasional (Kemnaker RI)."
+      }
+    </script>
+
+    <style>
+      body { margin: 0; font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+      .boot { min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 2rem; color: #0f172a; }
+      @media (prefers-color-scheme: dark) { .boot { color: #f8fafc; background: #0a0a0a; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback crawler/no-JS; diganti React saat mount -->
+      <div class="boot">
+        <div>
+          <h1>Magang Nasional Tracker 2026</h1>
+          <p>Tracker mandiri untuk memantau lowongan Program Pemagangan Nasional Kemnaker RI (MagangHub / SIAPkerja).</p>
+          <p>Memuat data lowongan...</p>
+          <noscript>
+            <p>Aktifkan JavaScript untuk memakai aplikasi ini.</p>
+          </noscript>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

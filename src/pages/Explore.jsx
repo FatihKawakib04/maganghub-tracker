@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useStore } from "../store.js";
 import { scoreOf, levelOf } from "../data.js";
 import { PositionCard, PositionDetail, ScoreBadge } from "../components/Position.jsx";
+import AIMatch from "../components/AIMatch.jsx";
 
 const PAGE = 24;
 const SORTS = [
@@ -105,6 +106,8 @@ export default function Explore() {
           onChange={(e) => setQ(e.target.value)}
         />
       </section>
+
+      <AIMatch onOpen={setOpen} />
 
       <div className="filters">
         <input list="prodi" placeholder="Jurusan" value={jurusan} onChange={(e) => setJurusan(e.target.value)} />

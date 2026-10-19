@@ -156,6 +156,22 @@ summary { cursor: pointer; font-weight: 600; font-size: 0.85rem; }
   padding: 0.6rem 1rem; border-radius: 10px; font-weight: 600;
 }
 
+/* AI match */
+.ai-panel { margin-bottom: 1rem; }
+.ai-toggle {
+  width: 100%; text-align: left; font-weight: 600; padding: 0.7rem 1rem;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 12%, var(--card)), var(--card));
+  border: 1px solid var(--border);
+}
+.ai-body { border: 1px solid var(--border); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); padding: 1rem; background: var(--card); display: flex; flex-direction: column; gap: 0.7rem; }
+.ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; }
+.ai-grid input, .ai-grid select { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); }
+.ai-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.ai-results li { border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 0.7rem; cursor: pointer; }
+.ai-results li:hover { border-color: var(--primary); }
+.ai-res-head { display: flex; justify-content: space-between; gap: 0.5rem; align-items: center; }
+.ai-reason { font-size: 0.78rem; color: var(--primary); margin: 0.25rem 0 0; }
+
 /* compare bar */
 .compare-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
@@ -175,7 +191,9 @@ thead th { background: color-mix(in srgb, var(--fg) 5%, transparent); }
 .col-head { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.8rem; margin-bottom: 0.6rem; }
 .col-head.c-blue { color: #2563eb; } .col-head.c-amber { color: #d97706; }
 .col-head.c-green { color: #16a34a; } .col-head.c-red { color: #dc2626; }
-.mini-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.col.drop-target { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent); }
+.mini-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; cursor: grab; }
+.mini-card:active { cursor: grabbing; }
 .mini-card h4 { cursor: pointer; }
 .mini-card h4:hover { color: var(--primary); }
 .mini-card select { width: 100%; font-size: 0.75rem; padding: 0.3rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); }
