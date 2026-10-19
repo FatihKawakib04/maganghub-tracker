@@ -14,7 +14,7 @@ export function toCandidate(p) {
     educationLevels: String(p.tingkat_pendidikan || "").split(",").map((s) => s.trim()).filter(Boolean),
     city: p.location,
     organizerType: p.organizer?.type || "company",
-    taskDescription: p.job_description || "",
+    taskDescription: String(p.job_description || "").slice(0, 600),
     total_applications: p.total_applications,
     approved_quantity: p.approved_quantity,
     quantity_needed: p.quantity_needed,

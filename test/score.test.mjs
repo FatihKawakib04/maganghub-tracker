@@ -50,4 +50,13 @@ const q = normalize({ i: "y", t: "X", q: 3, aq: 2 }, dict);
 assert.equal(q.approved_quantity, 2);
 assert.equal(q.positions, "2 ACC / 3 Diajukan");
 
+// --- skills dipetakan dari file positions_skills (bukan studyPrograms) ---
+const sk = ["React", "Node.js", "SQL"];
+const np = normalize({ i: "s", t: "Dev", sk: [0, 2] }, { cities: [], studyPrograms: [], organizers: {} }, sk);
+assert.deepEqual(np.skills, ["React", "SQL"]);
+const np2 = normalize({ i: "s2", t: "Dev", sk: [9] }, { cities: [], studyPrograms: [], organizers: {} }, sk);
+assert.deepEqual(np2.skills, ["Kompetensi Magang"]);
+const np3 = normalize({ i: "s3", t: "Dev" }, { cities: [], studyPrograms: [], organizers: {} });
+assert.deepEqual(np3.skills, ["Kompetensi Magang"], "tanpa file skills tetap aman");
+
 console.log("OK · score/level/slug/normalize edge-cases lolos");

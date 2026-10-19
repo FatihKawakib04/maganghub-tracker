@@ -30,13 +30,14 @@ export const useStore = create(
         set({ loading: true, error: null, _inFlight: true });
         try {
           const manifest = await loadManifest();
-          const [dict, organizers, first] = await Promise.all([
+          const [dict, organizers, skills, first] = await Promise.all([
             loadShard(manifest.dict),
             loadShard(manifest.organizers),
+            loadShard(manifest.skills),
             loadShard(manifest.list[0]),
           ]);
           const positions = first
-            .map((r) => normalize(r, dict))
+            .map((r) => normalize(r, dict, skills))
             .sort((a, b) => new Date(b.date) - new Date(a.date));
           set({
             manifest,
@@ -50,7 +51,7 @@ export const useStore = create(
           // Hydrate sisa shard di background.
           const rest = await Promise.allSettled(manifest.list.slice(1).map((f) => loadShard(f)));
           const more = rest.flatMap((r) =>
-            r.status === "fulfilled" && Array.isArray(r.value) ? r.value.map((x) => normalize(x, dict)) : []
+            r.status === "fulfilled" && Array.isArray(r.value) ? r.value.map((x) => normalize(x, dict, skills)) : []
           );
           const seen = new Set(positions.map((p) => p.id));
           const merged = [...positions, ...more.filter((p) => !seen.has(p.id))].sort(

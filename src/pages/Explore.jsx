@@ -37,6 +37,7 @@ export default function Explore() {
   const [tipe, setTipe] = useState("all");
   const [chance, setChance] = useState("");
   const [onlyMulti, setOnlyMulti] = useState(false);
+  const [showClosed, setShowClosed] = useState(false);
   const [greenZone, setGreenZone] = useState(false);
   const [onlyTarget, setOnlyTarget] = useState(false);
   const [mitraId, setMitraId] = useState(params.get("mitra") || "");
@@ -68,6 +69,7 @@ export default function Explore() {
       if (jenjang && !p.tingkat_pendidikan.toLowerCase().includes(jenjang.toLowerCase())) return false;
       if (tipe !== "all" && p.organizer?.type !== tipe) return false;
       if (chance && levelOf(scoreOf(p)) !== chance) return false;
+      if (!showClosed && p.active === false) return false;
       if (onlyMulti && (p.quantity_needed ?? 1) <= 1) return false;
       if (greenZone && p.jurusan !== "Semua Jurusan") return false;
       if (onlyTarget && !targetOrganizers.includes(p.organizer_id)) return false;
@@ -82,13 +84,13 @@ export default function Explore() {
       return new Date(b.date) - new Date(a.date);
     });
     return out;
-  }, [positions, q, jurusan, kota, jenjang, tipe, chance, onlyMulti, greenZone, onlyTarget, mitraId, sort, targetOrganizers]);
+  }, [positions, q, jurusan, kota, jenjang, tipe, chance, onlyMulti, showClosed, greenZone, onlyTarget, mitraId, sort, targetOrganizers]);
 
   useEffect(() => setVisible(PAGE), [q, jurusan, kota, jenjang, tipe, chance, onlyMulti, greenZone, onlyTarget, sort]);
 
   const reset = () => {
     setQ(""); setJurusan(""); setKota(""); setJenjang(""); setTipe("all");
-    setChance(""); setOnlyMulti(false); setGreenZone(false); setOnlyTarget(false);
+    setChance(""); setOnlyMulti(false); setShowClosed(false); setGreenZone(false); setOnlyTarget(false);
     setMitraId(""); setParams({}, { replace: true });
   };
 
@@ -140,6 +142,7 @@ export default function Explore() {
 
         <label className="check"><input type="checkbox" checked={greenZone} onChange={(e) => setGreenZone(e.target.checked)} /> Semua Jurusan</label>
         <label className="check"><input type="checkbox" checked={onlyMulti} onChange={(e) => setOnlyMulti(e.target.checked)} /> Kuota &gt; 1</label>
+        <label className="check"><input type="checkbox" checked={showClosed} onChange={(e) => setShowClosed(e.target.checked)} /> Tampilkan Ditutup</label>
         <label className="check"><input type="checkbox" checked={onlyTarget} onChange={(e) => setOnlyTarget(e.target.checked)} /> Mitra target</label>
 
         <button className="ghost" onClick={reset}>Hapus Semua</button>

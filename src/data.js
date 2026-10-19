@@ -53,14 +53,15 @@ const shardIndex = (id, shards) => {
   return Number.isNaN(n) ? 0 : n % shards;
 };
 
-function mapSkills(raw, dict) {
-  if (!Array.isArray(raw.sk) || raw.sk.length === 0) return ["Kompetensi Magang"];
-  const names = raw.sk.map((i) => dict.studyPrograms?.[i]).filter(Boolean);
+function mapSkills(raw, skills) {
+  if (!Array.isArray(raw.sk) || raw.sk.length === 0 || !Array.isArray(skills)) return ["Kompetensi Magang"];
+  const names = raw.sk.map((i) => skills[i]).filter(Boolean);
   return names.length ? names : ["Kompetensi Magang"];
 }
 
 // Normalisasi item list ringkas -> objek penuh. Cerminan fungsi Mi() bundle asli.
-export function normalize(raw, dict) {
+// skills = array nama dari manifest.skills (indeks `sk`).
+export function normalize(raw, dict, skills) {
   const [cityName, province] = dict.cities?.[raw.c] || [];
   const [orgName, orgType] = dict.organizers?.[raw.o] || [];
   let jurusan = "Semua Jurusan";
@@ -95,7 +96,7 @@ export function normalize(raw, dict) {
     jurusan,
     tingkat_pendidikan: edu,
     job_description: raw.td || "",
-    skills: mapSkills(raw, dict),
+    skills: mapSkills(raw, skills),
     curriculum: [],
     _sk: raw.sk || null,
     _tr: typeof raw.tr === "number" ? raw.tr : null,

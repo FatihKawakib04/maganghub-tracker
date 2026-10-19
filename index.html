@@ -37,6 +37,15 @@
       .boot { min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 2rem; color: #0f172a; }
       @media (prefers-color-scheme: dark) { .boot { color: #f8fafc; background: #0a0a0a; } }
     </style>
+    <script>
+      // Set tema sebelum React mount untuk hindari kedipan (FOUC).
+      try {
+        var t = localStorage.getItem("vite-ui-theme") || "system";
+        document.documentElement.classList.add(
+          t === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : t
+        );
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root">

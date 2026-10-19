@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useStore } from "../store.js";
 import { scoreOf, levelOf, idToLink } from "../data.js";
 
@@ -80,6 +80,11 @@ export function PositionDetail({ p, onClose }) {
   const fetchDetail = useStore((s) => s.fetchDetail);
   const positionsData = useStore((s) => s.positionsData);
   const current = (p && positionsData.find((x) => x.id === p.id)) || p;
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (p?.id) fetchDetail(p.id);
@@ -94,13 +99,13 @@ export function PositionDetail({ p, onClose }) {
   const s = scoreOf(current);
   return (
     <div className="overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" role="dialog" aria-modal="true" aria-label={current.title} onClick={(e) => e.stopPropagation()}>
         <header className="modal-head">
           <div>
             <h2>{current.title}</h2>
             <p className="muted">{current.company} · {current.location}</p>
           </div>
-          <button className="ghost" onClick={onClose}>Tutup</button>
+          <button ref={closeRef} className="ghost" onClick={onClose}>Tutup</button>
         </header>
 
         <div className="grid-2">
